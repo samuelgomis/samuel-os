@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Samuel OS — Founder Dashboard</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+  :root {
+    --os-bg: #0b0d1a;
+    --os-surface: #10142a;
+    --os-surface2: #161b35;
+    --os-surface3: #1c2240;
+    --os-border: rgba(99,102,241,0.18);
+    --os-border2: rgba(99,102,241,0.35);
+    --os-blue: #6366f1;
+    --os-blue2: #818cf8;
+    --os-purple: #a78bfa;
+    --os-green: #34d399;
+    --os-amber: #fbbf24;
+    --os-red: #f87171;
+    --os-cyan: #22d3ee;
+    --os-text: #e2e8f0;
+    --os-muted: #94a3b8;
+    --os-dim: #475569;
+    font-size: 14px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--os-bg);
+    color: var(--os-text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    min-height: 100vh;
+    padding: 20px;
+  }
+
+  /* HEADER */
+  .os-header {
+    background: var(--os-surface);
+    border: 1px solid var(--os-border);
+    border-radius: 12px;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .os-logo { display: flex; align-items: center; gap: 10px; }
+  .os-logo-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--os-blue);
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.2);
+  }
+  .os-title { font-size: 15px; font-weight: 500; letter-spacing: 0.04em; }
+  .os-title span { color: var(--os-muted); font-weight: 400; font-size: 12px; }
+  .os-sub { font-size: 11px; color: var(--os-muted); margin-top: 1px; }
+  .os-status-bar { display: flex; align-items: center; gap: 14px; }
+  .os-clock { font-size: 13px; color: var(--os-muted); font-variant-numeric: tabular-nums; font-family: 'SF Mono', 'Courier New', monospace; }
+  .os-uptime {
+    font-size: 11px;
+    background: rgba(52,211,153,0.1);
+    color: var(--os-green);
+    padding: 3px 10px; border-radius: 20px;
+    border: 1px solid rgba(52,211,153,0.25);
+  }
+
+  /* METRIC STRIP */
+  .metric-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .metric-card {
+    background: var(--os-surface);
+    border: 1px solid var(--os-border);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .metric-label { font-size: 10px; color: var(--os-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+  .metric-val { font-size: 26px; font-weight: 500; line-height: 1.1; }
+  .metric-sub { font-size: 11px; color: var(--os-muted); margin-top: 4px; }
+  .metric-trend { font-size: 11px; margin-top: 5px; }
+  .trend-green { color: var(--os-green); }
+  .trend-blue { color: var(--os-blue2); }
+  .trend-amber { color: var(--os-amber); }
+
+  /* MAIN GRID */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .card {
+    background: var(--os-surface);
+    border: 1px solid var(--os-border);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .card-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .card-title {
+    font-size: 10px; font-weight: 500; color: var(--os-muted);
+    text-transform: uppercase; letter-spacing: 0.08em;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .card-title i { font-size: 13px; }
+
+  /* BADGES */
+  .badge {
+    font-size: 10px; padding: 2px 8px; border-radius: 20px; font-weight: 500;
+    white-space: nowrap;
+  }
+  .badge-green { background: rgba(52,211,153,0.1); color: var(--os-green); border: 1px solid rgba(52,211,153,0.22); }
+  .badge-amber { background: rgba(251,191,36,0.1); color: var(--os-amber); border: 1px solid rgba(251,191,36,0.22); }
+  .badge-blue { background: rgba(99,102,241,0.1); color: var(--os-blue2); border: 1px solid rgba(99,102,241,0.22); }
+  .badge-red { background: rgba(248,113,113,0.1); color: var(--os-red); border: 1px solid rgba(248,113,113,0.22); }
+  .badge-purple { background: rgba(167,139,250,0.1); color: var(--os-purple); border: 1px solid rgba(167,139,250,0.22); }
+
+  /* PROJECTS */
+  .project-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--os-border);
+  }
+  .project-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .project-left { display: flex; align-items: center; gap: 9px; }
+  .project-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .dot-green { background: var(--os-green); }
+  .dot-amber { background: var(--os-amber); }
+  .dot-blue { background: var(--os-blue); }
+  .dot-purple { background: var(--os-purple); }
+  .dot-cyan { background: var(--os-cyan); }
+  .project-name { font-size: 13px; font-weight: 500; }
+  .project-stack { font-size: 10px; color: var(--os-dim); margin-top: 1px; font-family: 'SF Mono', monospace; }
+  .project-right { text-align: right; }
+  .project-url { font-size: 10px; color: var(--os-dim); margin-top: 3px; }
+
+  /* AGENTS */
+  .agent-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+  .agent-chip {
+    display: flex; align-items: center; gap: 6px;
+    padding: 5px 8px;
+    background: var(--os-surface2);
+    border-radius: 6px;
+    border: 1px solid var(--os-border);
+  }
+  .agent-name { font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
+  .agent-state { font-size: 10px; color: var(--os-muted); flex-shrink: 0; }
+  .agent-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+  /* ACTIONS */
+  .action-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--os-border);
+  }
+  .action-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .action-num { font-size: 10px; color: var(--os-dim); width: 14px; flex-shrink: 0; padding-top: 2px; font-variant-numeric: tabular-nums; }
+  .action-body { flex: 1; }
+  .action-text { font-size: 12px; line-height: 1.4; }
+  .action-meta { display: flex; align-items: center; gap: 6px; margin-top: 3px; }
+  .action-project { font-size: 10px; color: var(--os-muted); }
+
+  /* CLAUDE LEVELS */
+  .claude-level {
+    display: flex; align-items: center; gap: 9px;
+    margin-bottom: 7px;
+    padding: 8px 10px;
+    background: var(--os-surface2);
+    border-radius: 8px;
+    border: 1px solid var(--os-border);
+  }
+  .claude-level:last-of-type { margin-bottom: 0; }
+  .claude-icon {
+    width: 26px; height: 26px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; flex-shrink: 0;
+  }
+  .icon-blue { background: rgba(99,102,241,0.15); color: var(--os-blue2); }
+  .icon-purple { background: rgba(167,139,250,0.15); color: var(--os-purple); }
+  .icon-cyan { background: rgba(34,211,238,0.15); color: var(--os-cyan); }
+  .claude-info { flex: 1; }
+  .claude-name { font-size: 12px; font-weight: 500; }
+  .claude-desc { font-size: 10px; color: var(--os-muted); margin-top: 1px; line-height: 1.35; }
+
+  /* GAUGES */
+  .gauge-section { margin-top: 12px; }
+  .gauge-section-title { font-size: 10px; color: var(--os-muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 7px; }
+  .gauge-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+  .gauge-row:last-child { margin-bottom: 0; }
+  .gauge-label { font-size: 11px; color: var(--os-muted); width: 88px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .gauge-track { flex: 1; height: 5px; background: var(--os-surface3); border-radius: 3px; overflow: hidden; }
+  .gauge-fill { height: 100%; border-radius: 3px; }
+  .fill-blue { background: var(--os-blue); }
+  .fill-green { background: var(--os-green); }
+  .fill-amber { background: var(--os-amber); }
+  .fill-purple { background: var(--os-purple); }
+  .fill-cyan { background: var(--os-cyan); }
+  .gauge-pct { font-size: 10px; color: var(--os-muted); width: 28px; text-align: right; font-variant-numeric: tabular-nums; }
+
+  /* BOTTOM METRICS */
+  .bottom-card {
+    background: var(--os-surface);
+    border: 1px solid var(--os-border);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .bottom-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+    gap: 12px;
+    align-items: start;
+  }
+  .gauge-col { grid-column: 1 / 3; }
+  .stat-chips { grid-column: 3 / 6; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  .stat-chip {
+    background: var(--os-surface2);
+    border: 1px solid var(--os-border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    text-align: center;
+  }
+  .stat-chip-label { font-size: 10px; color: var(--os-muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 5px; }
+  .stat-chip-val { font-size: 22px; font-weight: 500; line-height: 1.1; }
+  .stat-chip-sub { font-size: 10px; color: var(--os-muted); margin-top: 4px; }
+
+  @media (max-width: 700px) {
+    .metric-strip { grid-template-columns: 1fr 1fr; }
+    .main-grid { grid-template-columns: 1fr; }
+    .bottom-inner { grid-template-columns: 1fr; }
+    .gauge-col, .stat-chips { grid-column: 1 / -1; }
+    .stat-chips { grid-template-columns: 1fr 1fr; }
+    body { padding: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="os-header">
+  <div class="os-logo">
+    <div class="os-logo-dot"></div>
+    <div>
+      <div class="os-title">Samuel OS <span>v2.26</span></div>
+      <div class="os-sub">Founder Operating System · 10 juin 2026</div>
+    </div>
+  </div>
+  <div class="os-status-bar">
+    <div class="os-clock" id="clock">--:--:--</div>
+    <div class="os-uptime"><i class="ti ti-activity"></i> All systems operational</div>
+  </div>
+</div>
+
+<div class="metric-strip">
+  <div class="metric-card">
+    <div class="metric-label">Projets actifs</div>
+    <div class="metric-val">4</div>
+    <div class="metric-sub">en parallèle</div>
+    <div class="metric-trend trend-green">↑ +1 cette semaine</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-label">Agents n8n</div>
+    <div class="metric-val">12</div>
+    <div class="metric-sub">orchestrés</div>
+    <div class="metric-trend trend-blue">48 workflows actifs</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-label">n8n version</div>
+    <div class="metric-val" style="font-size:20px;">v2.26.2</div>
+    <div class="metric-sub">migré le 10 juin</div>
+    <div class="metric-trend trend-green">76/76 workflows ✓</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-label">Actions en attente</div>
+    <div class="metric-val" style="color:var(--os-amber);">8</div>
+    <div class="metric-sub">dont 1 critique</div>
+    <div class="metric-trend trend-amber">CLAUDE.md KazMgr !</div>
+  </div>
+</div>
+
+<div class="main-grid">
+
+  <!-- PROJETS -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title"><i class="ti ti-layout-dashboard"></i> Projets</span>
+    </div>
+    <div class="project-row">
+      <div class="project-left">
+        <span class="project-dot dot-green"></span>
+        <div>
+          <div class="project-name">KazManager</div>
+          <div class="project-stack">Bubble.io · n8n · Redis · VPS</div>
+        </div>
+      </div>
+      <div class="project-right">
+        <span class="badge badge-amber">GTM-Ready</span>
+        <div class="project-url">kazmanager.ai</div>
+      </div>
+    </div>
+    <div class="project-row">
+      <div class="project-left">
+        <span class="project-dot dot-blue"></span>
+        <div>
+          <div class="project-name">PhotoIQ</div>
+          <div class="project-stack">Next.js 14 · Supabase · Vercel</div>
+        </div>
+      </div>
+      <div class="project-right">
+        <span class="badge badge-green">Beta v1.4</span>
+        <div class="project-url">photoiq.vercel.app</div>
+      </div>
+    </div>
+    <div class="project-row">
+      <div class="project-left">
+        <span class="project-dot dot-amber"></span>
+        <div>
+          <div class="project-name">TCC</div>
+          <div class="project-stack">Next.js 15 · Supabase · n8n Cloud</div>
+        </div>
+      </div>
+      <div class="project-right">
+        <span class="badge badge-green">Prod gov.</span>
+        <div class="project-url">tcc-ai.sn</div>
+      </div>
+    </div>
+    <div class="project-row">
+      <div class="project-left">
+        <span class="project-dot dot-purple"></span>
+        <div>
+          <div class="project-name">Formation Skool</div>
+          <div class="project-stack">HTML · Vidéo · QG IA Skool</div>
+        </div>
+      </div>
+      <div class="project-right">
+        <span class="badge badge-purple">Semaine 1</span>
+        <div class="project-url">97€ / early 47€</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AGENTS -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title"><i class="ti ti-cpu"></i> Agents KazManager</span>
+      <span class="badge badge-green">12 actifs</span>
+    </div>
+    <div class="agent-grid">
+      <div class="agent-chip"><span class="agent-dot dot-green"></span><span class="agent-name">KazManager</span><span class="agent-state" style="color:var(--os-green);">●</span></div>
+      <div class="agent-chip"><span class="agent-dot dot-green"></span><span class="agent-name">Smart-Routing</span><span class="agent-state" style="color:var(--os-green);">●</span></div>
+      <div class="agent-chip"><span class="agent-dot dot-green"></span><span class="agent-name">KazSentinel V2</span><span class="agent-state" style="color:var(--os-green);">●</span></div>
+      <div class="agent-chip"><span class="agent-dot dot-green"></span><span class="agent-name">KazVerifier</span><span class="agent-state" style="color:var(--os-green);">●</span></div>
+      <div class="agent-chip"><span class="agent-dot dot-green"></span><span class="agent-name">KazCoordinator</span><span class="agent-state" style="color:var(--os-green);">●</span></div>
+      <div class="agent-chip"><span class="agent-dot dot-green"></span><span class="agent-name">KazMemory</span><span class="agent-state" style="color:var(--os-green);">●</span></div>
+      <div class="agent-chip"><span class="agent-dot dot-green"></span><span class="agent-name">KazMetrics</span><span class="agent-state" style="color:var(--os-green);">●</span></div>
+      <div class="agent-chip"><span class="agent-dot dot-green"></span><span class="agent-name">KazPredictor</span><span class="agent-state" style="color:var(--os-green);">●</span></div>
+      <div class="agent-chip"><span class="agent-dot dot-green"></span><span class="agent-name">KazProspector</span><span class="agent-state" style="color:var(--os-green);">●</span></div>
+      <div class="agent-chip"><span class="agent-dot dot-green"></span><span class="agent-name">ReaderAgent</span><span class="agent-state" style="color:var(--os-green);">●</span></div>
+      <div class="agent-chip"><span class="agent-dot dot-green"></span><span class="agent-name">PromptReader</span><span class="agent-state" style="color:var(--os-green);">●</span></div>
+      <div class="agent-chip"><span class="agent-dot dot-amber"></span><span class="agent-name">Configurator</span><span class="agent-state" style="color:var(--os-amber);">◐</span></div>
+    </div>
+  </div>
+
+  <!-- ACTIONS -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title"><i class="ti ti-list-check"></i> Actions en attente</span>
+      <span class="badge badge-amber">8 items</span>
+    </div>
+    <div class="action-item">
+      <div class="action-num">1</div>
+      <div class="action-body">
+        <div class="action-text">CLAUDE.md protecteur archive</div>
+        <div class="action-meta"><span class="badge badge-red">HIGH</span><span class="action-project">KazManager · 2 ans d'historique</span></div>
+      </div>
+    </div>
+    <div class="action-item">
+      <div class="action-num">2</div>
+      <div class="action-body">
+        <div class="action-text">Nettoyage 4 workflows en doublon</div>
+        <div class="action-meta"><span class="badge badge-amber">MEDIUM</span><span class="action-project">n8n · collisions webhook</span></div>
+      </div>
+    </div>
+    <div class="action-item">
+      <div class="action-num">3</div>
+      <div class="action-body">
+        <div class="action-text">Poster Module 0 gratuit Skool</div>
+        <div class="action-meta"><span class="badge badge-blue">LOW</span><span class="action-project">Formation · QG IA Skool</span></div>
+      </div>
+    </div>
+    <div class="action-item">
+      <div class="action-num">4</div>
+      <div class="action-body">
+        <div class="action-text">Runner externe n8n (internal → external)</div>
+        <div class="action-meta"><span class="badge badge-blue">LOW</span><span class="action-project">n8n · n8nio/runners</span></div>
+      </div>
+    </div>
+    <div class="action-item">
+      <div class="action-num">5</div>
+      <div class="action-body">
+        <div class="action-text">Retours beta Photo Club</div>
+        <div class="action-meta"><span class="badge badge-blue">LOW</span><span class="action-project">PhotoIQ · itération UX</span></div>
+      </div>
+    </div>
+    <div class="action-item">
+      <div class="action-num">6</div>
+      <div class="action-body">
+        <div class="action-text">Migration Bubble → Supabase/Vercel</div>
+        <div class="action-meta"><span class="badge badge-purple">STRAT</span><span class="action-project">KazManager · CC V2</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLAUDE ARCHITECTURE -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title"><i class="ti ti-brain"></i> Architecture Claude</span>
+      <span class="badge badge-green">3 niveaux</span>
+    </div>
+    <div class="claude-level">
+      <div class="claude-icon icon-blue"><i class="ti ti-world"></i></div>
+      <div class="claude-info">
+        <div class="claude-name">Niveau 1 — Instructions Général</div>
+        <div class="claude-desc">8 blocs + sécurité · Réglages → Profil · Transverse tous chats</div>
+      </div>
+      <span class="badge badge-green">✓ actif</span>
+    </div>
+    <div class="claude-level">
+      <div class="claude-icon icon-purple"><i class="ti ti-stack"></i></div>
+      <div class="claude-info">
+        <div class="claude-name">Niveau 2 — Cowork global</div>
+        <div class="claude-desc">10 blocs + sécurité conception · Réglages → Cowork</div>
+      </div>
+      <span class="badge badge-green">✓ actif</span>
+    </div>
+    <div class="claude-level">
+      <div class="claude-icon icon-cyan"><i class="ti ti-folder"></i></div>
+      <div class="claude-info">
+        <div class="claude-name">Niveau 3 — Projets (×4)</div>
+        <div class="claude-desc">PhotoIQ · TCC · KazManager · Formation — CLAUDE.md + guard.sh + /ultrareview</div>
+      </div>
+      <span class="badge badge-amber">3/4 ✓</span>
+    </div>
+    <div class="gauge-section">
+      <div class="gauge-section-title">Couverture sécurité par projet</div>
+      <div class="gauge-row">
+        <span class="gauge-label">PhotoIQ</span>
+        <div class="gauge-track"><div class="gauge-fill fill-green" style="width:100%"></div></div>
+        <span class="gauge-pct">100%</span>
+      </div>
+      <div class="gauge-row">
+        <span class="gauge-label">TCC</span>
+        <div class="gauge-track"><div class="gauge-fill fill-green" style="width:100%"></div></div>
+        <span class="gauge-pct">100%</span>
+      </div>
+      <div class="gauge-row">
+        <span class="gauge-label">Formation</span>
+        <div class="gauge-track"><div class="gauge-fill fill-blue" style="width:80%"></div></div>
+        <span class="gauge-pct">80%</span>
+      </div>
+      <div class="gauge-row">
+        <span class="gauge-label">KazManager</span>
+        <div class="gauge-track"><div class="gauge-fill fill-amber" style="width:60%"></div></div>
+        <span class="gauge-pct">60%</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- BOTTOM ROW -->
+<div class="bottom-card">
+  <div class="card-header">
+    <span class="card-title"><i class="ti ti-activity"></i> Métriques système</span>
+    <span style="font-size:10px;color:var(--os-muted);">VPS 145.223.34.126 · kazmanager.ai · n8n.kazmanager.ai</span>
+  </div>
+  <div class="bottom-inner">
+    <div class="gauge-col">
+      <div class="gauge-section-title" style="font-size:10px;color:var(--os-muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:7px;">Charge agents (fictive)</div>
+      <div class="gauge-row"><span class="gauge-label">KazSentinel</span><div class="gauge-track"><div class="gauge-fill fill-green" style="width:72%"></div></div><span class="gauge-pct">72%</span></div>
+      <div class="gauge-row"><span class="gauge-label">Smart-Routing</span><div class="gauge-track"><div class="gauge-fill fill-blue" style="width:58%"></div></div><span class="gauge-pct">58%</span></div>
+      <div class="gauge-row"><span class="gauge-label">KazMemory</span><div class="gauge-track"><div class="gauge-fill fill-purple" style="width:44%"></div></div><span class="gauge-pct">44%</span></div>
+      <div class="gauge-row"><span class="gauge-label">KazMetrics</span><div class="gauge-track"><div class="gauge-fill fill-cyan" style="width:31%"></div></div><span class="gauge-pct">31%</span></div>
+    </div>
+    <div class="stat-chips">
+      <div class="stat-chip">
+        <div class="stat-chip-label">Workflows actifs</div>
+        <div class="stat-chip-val" style="color:var(--os-green);">48</div>
+        <div class="stat-chip-sub">/ 76 total</div>
+      </div>
+      <div class="stat-chip">
+        <div class="stat-chip-label">Uptime n8n</div>
+        <div class="stat-chip-val" style="color:var(--os-blue2);">99.8%</div>
+        <div class="stat-chip-sub">post-migration</div>
+      </div>
+      <div class="stat-chip">
+        <div class="stat-chip-label">Redis</div>
+        <div class="stat-chip-val" style="color:var(--os-purple);">v7</div>
+        <div class="stat-chip-sub">kaz_redis_sentinel</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function updateClock() {
+    const now = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    const el = document.getElementById('clock');
+    if (el) el.textContent = pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+</script>
+
+</body>
+</html>
