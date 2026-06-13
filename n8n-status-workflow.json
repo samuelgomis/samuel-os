@@ -1,0 +1,121 @@
+{
+  "name": "Samuel OS — Status JSON Generator",
+  "nodes": [
+    {
+      "id": "node-schedule",
+      "name": "Every 5 Minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 300],
+      "parameters": {
+        "rule": {
+          "interval": [{ "field": "minutes", "minutesInterval": 5 }]
+        }
+      }
+    },
+    {
+      "id": "node-get-workflows",
+      "name": "Get Workflows",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 200],
+      "parameters": {
+        "method": "GET",
+        "url": "https://n8n.kazmanager.ai/api/v1/workflows",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "X-N8N-API-KEY", "value": "YOUR_N8N_API_KEY" }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "node-get-executions",
+      "name": "Get Executions",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 400],
+      "parameters": {
+        "method": "GET",
+        "url": "https://n8n.kazmanager.ai/api/v1/executions?limit=20",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "X-N8N-API-KEY", "value": "YOUR_N8N_API_KEY" }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "node-format",
+      "name": "Format Status JSON",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [700, 300],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const workflowsData = $('Get Workflows').first().json;\nconst executionsData = $('Get Executions').first().json;\n\nconst workflows = workflowsData.data || [];\nconst executions = executionsData.data || [];\n\nconst active = workflows.filter(w => w.active === true).length;\nconst inactive = workflows.filter(w => w.active === false).length;\n\nconst success = executions.filter(e => e.finished === true && e.stoppedAt && !e.data?.resultData?.error).length;\nconst successRate = executions.length > 0\n  ? Math.round((success / executions.length) * 100)\n  : 0;\n\nconst status = {\n  updated_at: new Date().toISOString(),\n  n8n_version: '2.26.2',\n  workflows: {\n    total: workflows.length,\n    active,\n    inactive\n  },\n  executions: {\n    last_20: executions.length,\n    success_rate: successRate\n  }\n};\n\nreturn [{ json: status }];"
+      }
+    },
+    {
+      "id": "node-ssh",
+      "name": "Write status.json to VPS",
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [940, 300],
+      "parameters": {
+        "command": "cat > /var/www/html/status/status.json << 'JSONEOF'\n{{ JSON.stringify($json, null, 2) }}\nJSONEOF\necho OK"
+      },
+      "credentials": {
+        "sshPassword": {
+          "id": "YOUR_SSH_CREDENTIAL_ID",
+          "name": "YOUR_SSH_CREDENTIAL"
+        }
+      }
+    },
+    {
+      "id": "node-verify",
+      "name": "Verify status.json",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1180, 300],
+      "parameters": {
+        "method": "GET",
+        "url": "https://n8n.kazmanager.ai/status/status.json",
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Every 5 Minutes": {
+      "main": [[
+        { "node": "Get Workflows", "type": "main", "index": 0 },
+        { "node": "Get Executions", "type": "main", "index": 0 }
+      ]]
+    },
+    "Get Workflows": {
+      "main": [[{ "node": "Format Status JSON", "type": "main", "index": 0 }]]
+    },
+    "Get Executions": {
+      "main": [[{ "node": "Format Status JSON", "type": "main", "index": 0 }]]
+    },
+    "Format Status JSON": {
+      "main": [[{ "node": "Write status.json to VPS", "type": "main", "index": 0 }]]
+    },
+    "Write status.json to VPS": {
+      "main": [[{ "node": "Verify status.json", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "pinData": {}
+}

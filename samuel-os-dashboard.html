@@ -250,7 +250,7 @@
   </div>
   <div class="os-status-bar">
     <div class="os-clock" id="clock">--:--:--</div>
-    <div class="os-uptime"><i class="ti ti-activity"></i> All systems operational</div>
+    <div class="os-uptime" id="os-uptime-badge"><i class="ti ti-activity"></i> All systems operational</div>
   </div>
 </div>
 
@@ -263,13 +263,13 @@
   </div>
   <div class="metric-card">
     <div class="metric-label">Agents n8n</div>
-    <div class="metric-val">12</div>
+    <div class="metric-val" id="live-metric-agents">12</div>
     <div class="metric-sub">orchestrés</div>
     <div class="metric-trend trend-blue">48 workflows actifs</div>
   </div>
   <div class="metric-card">
     <div class="metric-label">n8n version</div>
-    <div class="metric-val" style="font-size:20px;">v2.26.2</div>
+    <div class="metric-val" id="live-metric-version" style="font-size:20px;">v2.26.2</div>
     <div class="metric-sub">migré le 10 juin</div>
     <div class="metric-trend trend-green">76/76 workflows ✓</div>
   </div>
@@ -488,12 +488,12 @@
     <div class="stat-chips">
       <div class="stat-chip">
         <div class="stat-chip-label">Workflows actifs</div>
-        <div class="stat-chip-val" style="color:var(--os-green);">48</div>
-        <div class="stat-chip-sub">/ 76 total</div>
+        <div class="stat-chip-val" id="live-wf" style="color:var(--os-green);">48</div>
+        <div class="stat-chip-sub" id="live-exec">/ 76 total</div>
       </div>
       <div class="stat-chip">
         <div class="stat-chip-label">Uptime n8n</div>
-        <div class="stat-chip-val" style="color:var(--os-blue2);">99.8%</div>
+        <div class="stat-chip-val" id="live-uptime" style="color:var(--os-blue2);">99.8%</div>
         <div class="stat-chip-sub">post-migration</div>
       </div>
       <div class="stat-chip">
@@ -514,6 +514,30 @@
   }
   updateClock();
   setInterval(updateClock, 1000);
+
+  async function fetchStatus() {
+    try {
+      const res = await fetch('https://n8n.kazmanager.ai/status/status.json', { cache: 'no-store' });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const s = await res.json();
+
+      const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+
+      set('live-wf',              s.workflows?.active ?? '—');
+      set('live-uptime',          (s.executions?.success_rate ?? '—') + '%');
+      set('live-exec',            '/ ' + (s.executions?.last_20 ?? '—') + ' exec récentes');
+      set('live-metric-agents',   s.workflows?.active ?? '—');
+      set('live-metric-version',  s.n8n_version ? 'v' + s.n8n_version : '—');
+
+      const badge = document.getElementById('os-uptime-badge');
+      if (badge) badge.innerHTML = '<i class="ti ti-activity"></i> Live data';
+    } catch (_) {
+      // fallback silencieux — simulation existante reste active
+    }
+  }
+
+  fetchStatus();
+  setInterval(fetchStatus, 60000);
 </script>
 
 </body>
